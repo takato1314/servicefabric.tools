@@ -2,13 +2,13 @@
 
 All of the latest scripts can be found from the installed SDK version (ie. ```%ProgramFiles%\Microsoft SDKs\Service Fabric\Tools\PSModule\ServiceFabricSDK```).
 
-## Pre-requisites
+## Usage
 
 * Do build and [package](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-package-apps) your SF application using your compiler first.
 
 * [Connection](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-deploy-remove-applications#connect-to-the-cluster) to service fabric cluster must be established by using ```Connect-ServiceFabricCluster``` before invoking this cmdlet.
 
-  ```Console
+  ```Powershell
   > $ConnectArgs = @{ ConnectionEndpoint = 'mycluster.cloudapp.net:19000';  X509Credential = $True;  StoreLocation = 'CurrentUser';  StoreName = "MY";  ServerCommonName = "mycluster.cloudapp.net";  FindType = 'FindByThumbprint';  FindValue = "AA11BB22CC33DD44EE55FF66AA77BB88CC99DD00" }
 
   > Connect-ServiceFabricCluster @ConnectArgs
@@ -16,13 +16,13 @@ All of the latest scripts can be found from the installed SDK version (ie. ```%P
 
 * The [configuration file](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-how-to-parameterize-configuration-files) ```ApplicationParameterFilePath``` 'Local.xml' can be of any name with valid parameters as specified within the ApplicationManifest. You can [validate](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-package-apps#test-the-package) this via the following method
 
-  ```Console
+  ```Powershell
   > Test-ServiceFabricApplicationPackage -ApplicationPackagePath "C:\CalculatorApp" [-ImageStoreConnectionString <String>]-ApplicationParameter @{ "StatelessServiceInstanceCount"="-1" }
   ```
 
 * Optionally, you can choose to [compress](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-package-apps#compress-a-package) your Service Fabric application before [uploading](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-deploy-remove-applications#upload-the-application-package) it Image Store.
 
-  ```Console
+  ```Powershell
   > Copy-ServiceFabricApplicationPackage -ApplicationPackagePath $path -CompressPackage -SkipCopy
 
   > tree /f $path
@@ -38,15 +38,29 @@ All of the latest scripts can be found from the installed SDK version (ie. ```%P
 
   ```
 
+* To use all the scripts below, you need to import the all the files in this directory via ```Import-Module``` as follows:
+
+  Local context
+
+  ```Powershell
+  > Import-Module .\ServiceFabricSDK.psm1
+  ```
+  
+  Global context
+
+  ```Powershell
+  > Import-Module .\ServiceFabricSDK.ps1
+  ```
+
 ## Publish-NewServiceFabricApplication.ps1
 
 Publishes a new Service Fabric application type to Service Fabric cluster. Please read the synopsis in the script file for full information. See [here](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-deploy-remove-applications) for latest info.
 
-* The script will validate application before deployment by default. Use ```SkipPackageValidation``` switch to skip this.
+* The script will validate application before deployment by default. Use ```-SkipPackageValidation``` switch to skip this.
 
-* If the application file is huge, do consider to [compress](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-package-apps#compress-a-package) it before running this script. You can also use the ```CompressPackage``` switch to pre-compress before deployment.
+* If the application file is huge, do consider to [compress](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-package-apps#compress-a-package) it before running this script. You can also use the ```-CompressPackage``` switch to pre-compress before deployment.
 
-* If that doesn't help, you can consider to increase the ```Timeout``` for the following parameters:
+* If that doesn't help, you can consider to increase the timeout for the following parameters:
 
   * CopyPackageTimeoutSec
   * RegisterApplicationTypeTimeoutSec
@@ -56,18 +70,18 @@ Publishes a new Service Fabric application type to Service Fabric cluster. Pleas
 
 * Registers & Creates an application with AppParameter file containing name of application and values for parameters that are defined in the application manifest to default image store..
 
-  ```Console
+  ```Powershell
   > Publish-NewServiceFabricApplication -ApplicationPackagePath 'pkg\Debug' -ApplicationParameterFilePath 'Local.xml'
   ```
 
 * Registers & Creates an application with the specified application name to default image store. Application name must start with ```fabric:/```
 
-  ```Console
+  ```Powershell
   > Publish-NewServiceFabricApplication -ApplicationPackagePath 'pkg\Debug' -ApplicationName 'fabric:/Application1'
   ```
 
 * Registers & Creates an application to external image store (available in version 6.x.x onwards).
 
-  ```Console
+  ```Powershell
   > Publish-NewServiceFabricApplication (tbd)
   ```
