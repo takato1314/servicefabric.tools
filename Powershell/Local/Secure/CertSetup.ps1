@@ -134,7 +134,16 @@ if($Install)
 
     $keyUsageExt = New-Object -ComObject X509Enrollment.CX509ExtensionKeyUsage
     $keyUsageExt.InitializeEncode($X509KeyUsageFlags.KEY_ENCIPHERMENT -bor $X509KeyUsageFlags.DIGITAL_SIGNATURE)
-
+ 
+    # Subject alternative names
+    $x509AlternativeNames = new-object -com "X509Enrollment.CX509ExtensionAlternativeNames"
+    $alternativeNames =  new-object -com "X509Enrollment.CAlternativeNames"
+    $alternativeName = new-object -com "X509Enrollment.CAlternativeName"
+    # Dns Alternative Name
+    $alternativeName.InitializeFromString(3, $CertSubjectName)
+    $alternativeNames.Add($alternativeName)
+    $x509AlternativeNames.InitializeEncode($alternativeNames)
+ 
     $certTemplateName = ""
     $cert = new-object -com "X509Enrollment.CX509CertificateRequestCertificate.1"
     $cert.InitializeFromPrivateKey($X509CertificateEnrollmentContext.MACHINE, $key, $certTemplateName)
@@ -146,6 +155,7 @@ if($Install)
     $cert.NotAfter = $cert.NotBefore.AddYears(1)
     $cert.X509Extensions.Add($ekuext)
     $cert.X509Extensions.Add($keyUsageExt)
+    $cert.X509Extensions.Add($x509AlternativeNames)
     $cert.Encode()
 
     #install certificate in LocalMachine My store
